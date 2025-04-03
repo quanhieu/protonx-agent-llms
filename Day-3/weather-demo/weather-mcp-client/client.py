@@ -56,7 +56,7 @@ class MCPClient:
         ]
 
         response = await self.session.list_tools()
-        print('tools', response)
+
         available_tools = [{ 
             "name": tool.name,
             "description": tool.description,
