@@ -14,7 +14,12 @@
    ```
    For more details, visit: https://docs.astral.sh/uv/#installation
 
-2. Install MCP with CLI support:
+2. Init a project
+```
+uv init <project-name>
+```
+
+3. Install MCP with CLI support:
    ```bash
    uv add "mcp[cli]"
    ```
