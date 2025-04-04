@@ -6,5 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "mcp[all]>=1.6.0",
-    "chromadb"
+    "chromadb",
+    "openai>=1.70.0",
+    "openai-agents>=0.0.8",
 ]
