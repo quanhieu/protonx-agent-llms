@@ -1,4 +1,4 @@
-### Agentic RAG Implementation using Model Context Protocol and OpenAI Agents SDK
+# Agentic RAG Implementation using Model Context Protocol and OpenAI Agents SDK
 
 
 
