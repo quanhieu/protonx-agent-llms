@@ -7,7 +7,7 @@
 ### Installation
 
 ```bash
-uv pip install -r requirements
+uv pip install -r requirements.txt
 ```
 
 ### Run the project
