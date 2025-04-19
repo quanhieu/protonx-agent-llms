@@ -1,0 +1,4 @@
+chromadb
+dotenv
+mcp[all]>=1.6.0
+openai

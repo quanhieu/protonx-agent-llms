@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "myapp": {
+      "command": "C:\\Users\\Admin\\miniconda3\\envs\\mcp-demo\\python.exe",
+      "args": [
+        "C:\\Users\\Admin\\Desktop\\protonx-agent-01-class\\Day-4\\resource-demo\\server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\Admin\\Desktop\\protonx-agent-01-class\\Day-4\\resource-demo"
+      }
+    }
+  }
+}
