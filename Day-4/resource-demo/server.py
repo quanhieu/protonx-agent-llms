@@ -65,7 +65,7 @@ def rag(query: str) -> str:
                     i += 1
     return search_result
 
-@mcp.resource("file:///data/hoanghamobile.csv", name="Mobile Phone Data", mime_type="application/json")
+@mcp.resource("file://data/hoanghamobile.csv", name="Mobile Phone Data", mime_type="application/json")
 def get_mobile_data() -> str:
     """Return mobile phone product data from hoanghamobile.csv as JSON"""
     try:
@@ -88,12 +88,12 @@ def get_mobile_data() -> str:
         return json.dumps({"error": f"Failed to read CSV data: {str(e)}"}, indent=2)
 
 
-@mcp.resource("file:///docs/readme.md", name="README", mime_type="text/markdown")
+@mcp.resource("file://docs/readme.md", name="README", mime_type="text/markdown")
 def get_readme() -> str:
     """Sample README file for the application"""
     return """# My Application. This is a sample README file for the application."""
 
-@mcp.resource("file:///logs/app.log", name="Application Logs", mime_type="text/plain")
+@mcp.resource("file://logs/app.log", name="Application Logs", mime_type="text/plain")
 def get_logs() -> str:
     """Sample application logs"""
     return "2025-04-15 12:00:00 INFO Starting application\n2025-04-15 12:00:05 INFO Connected to database\n2025-04-15 12:01:10 WARN High memory usage detected"
