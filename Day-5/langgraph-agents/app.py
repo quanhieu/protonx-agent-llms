@@ -17,6 +17,7 @@ model = ChatOpenAI(temperature=0)
 class AgentState(TypedDict):
     # The query being processed
     query: str
+    language: str
     # The conversation history
     messages: List[Dict[str, Any]]
     # Agent routing
@@ -31,7 +32,18 @@ class AgentState(TypedDict):
 def process_query(state: AgentState):
     """Initial processing of the query"""
     print(f"\n[System] Processing query: {state['query']}")
-    return {}
+
+    language_detect_prompt = f"""
+    Return the language of the user's query: {state['query']}
+    Respond with just one word like en, vi,
+    """
+
+    messages_for_llm = [HumanMessage(content=language_detect_prompt)]
+    response = model.invoke(messages_for_llm)
+
+    return {
+        "language": response.content.strip()
+    }
 
 def determine_agent(state: AgentState):
     """Manager agent determines which specialized agent should handle the query"""
@@ -64,8 +76,7 @@ def determine_agent(state: AgentState):
     elif "shop_information" in response_text:
         routing_decision = "shop_information"
     else:
-        # Default to product if unclear
-        routing_decision = "product"
+        routing_decision = "no_answer"
     
     print(f"[System] Routing decision: {routing_decision}")
     
@@ -78,6 +89,7 @@ def handle_product_query(state: AgentState):
     """Product agent handles product-related queries using RAG"""
     query = state["query"]
     messages = state["messages"]
+    language = state["language"]
     
     # Use your existing RAG function
     rag_results = rag(query)
@@ -92,6 +104,7 @@ def handle_product_query(state: AgentState):
     RAG results: {rag_results}
     
     Based on the provided information, answer the user's product-related question.
+    The answer must be in {language}
     """
     
     # Call the LLM
@@ -108,7 +121,8 @@ def handle_shop_information_query(state: AgentState):
     """Shop information agent handles store-related queries using RAG"""
     query = state["query"]
     messages = state["messages"]
-    
+    language = state["language"]
+
     # Use your existing RAG function
     rag_results = shop_information_rag()
     print(f"[System] Retrieved shop information")
@@ -122,6 +136,7 @@ def handle_shop_information_query(state: AgentState):
     RAG results: {rag_results}
     
     Based on the provided information, answer the user's question about the shop.
+    The answer must be in {language}
     """
     
     # Call the LLM
@@ -146,8 +161,22 @@ def route_query(state: AgentState) -> str:
     """Determine which agent should handle the query"""
     if state["routing_decision"] == "product":
         return "product"
-    else:
+    elif state["routing_decision"] == "shop_information":
         return "shop_information"
+    else:
+        return "no_answer"
+    
+def no_answer(state: AgentState):
+    """No answer agent handles queries that are not related to products or shop information"""
+    language = state["language"]
+    if language == "vi":
+        return {
+            "response": f"Tôi xin lỗi, tôi không biết trả lời câu hỏi của bạn."
+        }
+    else:
+        return {
+            "response": f"I'm sorry, I don't know how to answer that."
+        }
 
 # Create the StateGraph
 agent_graph = StateGraph(AgentState)
@@ -156,6 +185,8 @@ agent_graph = StateGraph(AgentState)
 agent_graph.add_node("process_query", process_query)
 agent_graph.add_node("determine_agent", determine_agent)
 agent_graph.add_node("handle_product_query", handle_product_query)
+agent_graph.add_node("no_answer", no_answer)
+
 agent_graph.add_node("handle_shop_information_query", handle_shop_information_query)
 agent_graph.add_node("format_response", format_response)
 
@@ -169,7 +200,8 @@ agent_graph.add_conditional_edges(
     route_query,
     {
         "product": "handle_product_query",
-        "shop_information": "handle_shop_information_query"
+        "shop_information": "handle_shop_information_query",
+        "no_answer": "no_answer"
     }
 )
 
@@ -177,6 +209,7 @@ agent_graph.add_conditional_edges(
 agent_graph.add_edge("handle_product_query", "format_response")
 agent_graph.add_edge("handle_shop_information_query", "format_response")
 agent_graph.add_edge("format_response", END)
+agent_graph.add_edge("no_answer", END)
 
 # Compile the graph
 compiled_graph = agent_graph.compile()
